@@ -194,13 +194,59 @@ namespace AdventDayTwo
 
 		outStats.gameNumber = atoi(gameToken.c_str());
 
+		pos = token_end_pos + 1;
+
 		while (token_end_pos != std::string::npos)
 		{
-			pos = token_end_pos + 1;
-			token_end_pos = line.find(";", token_end_pos); //possibe bug: how will this handle the string end?
+			token_end_pos = line.find(";", pos); //possibe bug: how will this handle the string end?
 			token = line.substr(pos, (token_end_pos - pos));
 
 			//now I have the dice counts in "token" (12 blue, 15 red, 2 green)
+			size_t inner_end_pos;
+			size_t inner_start_pos = 1; //+1 cause they put spaces after commas
+			do
+			{
+				//find a number, find a color
+				inner_end_pos = token.find(" ", inner_start_pos);
+				std::string number_token = token.substr(inner_start_pos, (inner_end_pos - inner_start_pos));
+
+				int diceNumber = atoi(number_token.c_str());
+
+				inner_start_pos = inner_end_pos + 1;
+				inner_end_pos = token.find(",", inner_start_pos);
+				if (inner_end_pos == std::string::npos)
+				{
+					inner_end_pos = token.length();
+				}
+
+				std::string color_token = token.substr(inner_start_pos, (inner_end_pos - inner_start_pos));
+				if (strcmp(color_token.c_str(), s_redName) == 0)
+				{
+					if (diceNumber > outStats.maxRed)
+					{
+						outStats.maxRed = diceNumber;
+					}
+				}
+				else if (strcmp(color_token.c_str(), s_greenName) == 0)
+				{
+					if (diceNumber > outStats.maxGreen)
+					{
+						outStats.maxGreen = diceNumber;
+					}
+				}
+				else if (strcmp(color_token.c_str(), s_blueName) == 0)
+				{
+					if (diceNumber > outStats.maxBlue)
+					{
+						outStats.maxBlue = diceNumber;
+					}
+				}
+
+				inner_start_pos = inner_end_pos + 2; //comma, space
+ 
+			} while (inner_end_pos != std::string::npos && inner_end_pos != token.length());
+			
+			pos = token_end_pos + 1; //semicolon
 		}
 	}
 
@@ -215,17 +261,35 @@ namespace AdventDayTwo
 		ifstream inputFile;
 		inputFile.open(inputFileName);
 
-		int authenticationSum = 0;
+		int rollingSum = 0;
+		int rollingPower = 0;
 		string line;
 		assert(inputFile.is_open());
 		{
+			vector<GameStats> statsVector;
+			
 			while (getline(inputFile, line))
 			{
 				GameStats gameLineStat;
 				ParseGameLine(line, gameLineStat);
+
+				statsVector.push_back(gameLineStat);
+			}
+
+			for (size_t i = 0; i < statsVector.size(); i++)
+			{
+				GameStats& stats = statsVector[i];
+
+				if (stats.maxBlue <= s_maxBlueCubes && stats.maxGreen <= s_maxGreenCubes && stats.maxRed <= s_maxRedCubes)
+				{
+					rollingSum += stats.gameNumber;
+				}
+
+				int power = stats.maxBlue * stats.maxGreen * stats.maxRed;
+				rollingPower += power;
 			}
 		}
 		
-		return 0;
+		return rollingSum;
 	}
 }
