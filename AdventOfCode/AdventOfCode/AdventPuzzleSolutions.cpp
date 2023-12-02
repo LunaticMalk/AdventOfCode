@@ -115,37 +115,6 @@ namespace AdventDayOne
 		assert(testVector[2].value == 8);
 	}
 
-	void VerifyValue(int lineCount, int combinedValue)
-	{
-		switch (lineCount)
-		{
-		case 1:
-			assert(combinedValue == 99);
-			break;
-		case 20:
-			assert(combinedValue == 44);
-			break;
-		case 60:
-			assert(combinedValue == 19);
-			break;
-		case 100:
-			assert(combinedValue == 46);
-			break;
-		case 150:
-			assert(combinedValue == 84);
-			break;
-		case 196:
-			assert(combinedValue == 52);
-			break;
-		case 586:
-			assert(combinedValue == 88);
-			break;
-		case 679:
-			assert(combinedValue == 55);
-			break;
-		}
-	}
-
 	int AdventOfCodeDay1()
 	{
 		using namespace std;
@@ -158,7 +127,6 @@ namespace AdventDayOne
 		inputFile.open(inputFileName);
 
 		int authenticationSum = 0;
-		int lineCount = 0;
 		string line;
 		assert(inputFile.is_open());
 		{
@@ -182,17 +150,82 @@ namespace AdventDayOne
 				int combinedValue = (firstNumber * 10) + (lastNumber);
 				authenticationSum += combinedValue;
 
-				lineCount++;
-				VerifyValue(lineCount, combinedValue);
-
 				numberValuesVector.clear();
 			}
 		}
 
 		inputFile.close();
 
-		cout << "Day 1 value: " << authenticationSum << " total lines: " << lineCount << endl;
+		cout << "Day 1 value: " << authenticationSum << endl;
 
 		return authenticationSum;
+	}
+
+} //namespace AdventDayOne
+
+namespace AdventDayTwo
+{
+	const int s_maxRedCubes = 12;
+	const int s_maxGreenCubes = 13;
+	const int s_maxBlueCubes = 14;
+
+	const char* s_redName = "red";
+	const char* s_blueName = "blue";
+	const char* s_greenName = "green";
+
+	struct GameStats
+	{
+		int gameNumber;
+		int maxBlue = 0;
+		int maxGreen = 0;
+		int maxRed = 0;
+	};
+
+	void ParseGameLine(std::string& line, GameStats& outStats)
+	{
+		//Example: Game 1: 12 blue, 15 red, 2 green; 17 red, 8 green, 5 blue; 8 red, 17 blue; 9 green, 1 blue, 4 red
+		
+		//Get the Game
+		size_t token_end_pos = line.find(":");
+		std::string token = line.substr(0, token_end_pos); //start, length
+
+		size_t pos = line.find(" ") + 1;
+		std::string gameToken = line.substr(pos, (token_end_pos - pos));
+
+		outStats.gameNumber = atoi(gameToken.c_str());
+
+		while (token_end_pos != std::string::npos)
+		{
+			pos = token_end_pos + 1;
+			token_end_pos = line.find(";", token_end_pos); //possibe bug: how will this handle the string end?
+			token = line.substr(pos, (token_end_pos - pos));
+
+			//now I have the dice counts in "token" (12 blue, 15 red, 2 green)
+		}
+	}
+
+	int AdventOfCodeDayTwo()
+	{
+		using namespace std;
+
+		//UnitTestFindAllNumberWords();
+
+		string inputFileName = string(DATA_DIRECTORY) + string("Day2/input.txt");
+
+		ifstream inputFile;
+		inputFile.open(inputFileName);
+
+		int authenticationSum = 0;
+		string line;
+		assert(inputFile.is_open());
+		{
+			while (getline(inputFile, line))
+			{
+				GameStats gameLineStat;
+				ParseGameLine(line, gameLineStat);
+			}
+		}
+		
+		return 0;
 	}
 }
