@@ -36,7 +36,7 @@ namespace AdventDayOne
 			int index = -1;
 			do
 			{
-				index = inputString.find(s_numberWords[i], index + 1);
+				index = (int)inputString.find(s_numberWords[i], index + 1);
 				if (index != std::string::npos)
 				{
 					IndexValuePair newPair = { index, i + 1 };
@@ -163,6 +163,9 @@ namespace AdventDayOne
 
 } //namespace AdventDayOne
 
+/***************************************************************
+*  Day 2
+****************************************************************/
 namespace AdventDayTwo
 {
 	const int s_maxRedCubes = 12;
@@ -254,8 +257,6 @@ namespace AdventDayTwo
 	{
 		using namespace std;
 
-		//UnitTestFindAllNumberWords();
-
 		string inputFileName = string(DATA_DIRECTORY) + string("Day2/input.txt");
 
 		ifstream inputFile;
@@ -276,6 +277,8 @@ namespace AdventDayTwo
 				statsVector.push_back(gameLineStat);
 			}
 
+			inputFile.close();
+
 			for (size_t i = 0; i < statsVector.size(); i++)
 			{
 				GameStats& stats = statsVector[i];
@@ -290,6 +293,259 @@ namespace AdventDayTwo
 			}
 		}
 		
+		cout << "Day 2 - Part One answer: " << rollingSum << " and Part Two: " << rollingPower << endl;
 		return rollingSum;
+	}
+}
+
+/***************************************************************
+*  Day 3
+****************************************************************/
+namespace AdventDayThree
+{
+	const char SPACE_DOT = '.';
+	const char GEAR_SYMBOL = '*';
+	
+	bool IsSymbol(char val)
+	{
+		return (val != SPACE_DOT && !isdigit(val));
+	}
+
+	int MakeNumber(int index, int length, const std::string& sourceString)
+	{
+		int value = 0;
+
+		for (int i = 0; i < length; i++)
+		{
+			const char number = sourceString[index + (length - 1 - i)];
+			//start at the last number and work our ways backwards
+			value += atoi(&number) * (int)((pow(10, i)));
+		}
+
+		return value;
+	}
+
+	//assumes the value passed in at startIndex is already a number
+	int FindNumberWithValueAtIndex(int startIndex, std::string& line)
+	{
+		int valueStartIndex = startIndex;
+		int length = 1;
+
+		//find the left side
+		while (valueStartIndex > 0)
+		{
+			if (!isdigit(line[valueStartIndex - 1]))
+			{
+				break;
+			}
+			--valueStartIndex;
+			++length;
+		}
+		//find the right side
+		while ((valueStartIndex + length - 1) < line.size())
+		{
+			if (!isdigit(line[valueStartIndex + length]))
+			{
+				break;
+			}
+			++length;
+		}
+
+		return MakeNumber(valueStartIndex, length, line);
+	}
+
+	int FindGearRatio(int row, int col, std::vector<std::string>& schematicData)
+	{
+		std::string& rowString = schematicData[row];
+		int rowLength = (int)rowString.length();
+
+		int foundNumberCount = 0;
+		const int MAXNUMBERCOUNT = 2;
+		int numbers[2] = { 0, 0 };		
+
+		//check next to it
+		if (col > 0 && isdigit(rowString[col - 1]))
+		{
+			numbers[foundNumberCount] = FindNumberWithValueAtIndex(col - 1, rowString);
+			foundNumberCount++;			
+		}
+		if (col < rowLength - 1 && isdigit(rowString[col + 1]))
+		{
+			numbers[foundNumberCount] = FindNumberWithValueAtIndex(col + 1, rowString);
+			foundNumberCount++;
+		}
+
+		int startIndex = col > 0 ? col - 1 : col;
+		int endIndex = col < rowLength - 1 ? col + 1 : rowLength - 1;
+
+		//at this point we might have two numbers, check before saving
+		if (row > 0)
+		{
+			std::string& aboveRowString = schematicData[row - 1];
+			bool foundDigit = false;
+			for (int i = startIndex; i <= endIndex; i++)
+			{				
+				if (isdigit(aboveRowString[i]))
+				{
+					if (foundDigit) { continue;  }//we already processed this number
+					
+					if (foundNumberCount >= MAXNUMBERCOUNT)
+					{
+						return 0; //we have found too many numbers, get out
+					}
+
+					numbers[foundNumberCount] = FindNumberWithValueAtIndex(i, aboveRowString);
+					foundNumberCount++;
+					foundDigit = true;
+				}
+				else { foundDigit = false; } //reset our flag
+			}
+		}
+
+		//check below
+		if (row < schematicData.size() - 1)
+		{
+			std::string& belowRowString = schematicData[row + 1];
+			bool foundDigit = false;
+			for (int i = startIndex; i <= endIndex; i++)
+			{
+				if (isdigit(belowRowString[i]))
+				{
+					if (foundDigit) { continue; }//we already processed this number
+
+					if (foundNumberCount >= MAXNUMBERCOUNT)
+					{
+						return 0; //we have found too many numbers, get out
+					}
+
+					numbers[foundNumberCount] = FindNumberWithValueAtIndex(i, belowRowString);
+					foundNumberCount++;
+					foundDigit = true;
+				}
+				else { foundDigit = false; } //reset our flag
+			}
+		}
+
+		if (foundNumberCount == MAXNUMBERCOUNT)
+		{
+			return numbers[0] * numbers[1];
+		}
+
+		return 0;
+	}
+
+	bool IsPartNumber(int row, int col, int length, std::vector<std::string>& schematicData)
+	{
+		std::string& rowString = schematicData[row];
+
+		//could cache this globall/statically and save a bit of time but meh
+		int rowLength = (int)rowString.length();
+
+		int startIndex = col > 0 ? col - 1 : col;
+		int endIndex = col + length >= rowLength ? rowLength - 1 : col + length; //(don't have to add 1, length will extend us past by 1 (if index is 2 and length is 3, 2,3,4 are the number, we want col 5)
+
+		//check all around the number
+		//check the sides
+		if (IsSymbol(rowString[startIndex]) || IsSymbol(rowString[endIndex]))
+		{
+			return true;
+		}
+
+		//check above
+		if (row > 0)
+		{			
+			std::string& aboveRowString = schematicData[row - 1];
+			for (int i = startIndex; i <= endIndex; i++)
+			{
+				if (IsSymbol(aboveRowString[i]))
+				{
+					return true;
+				}
+			}
+		}
+		
+		//check below
+		if (row < schematicData.size() - 1)
+		{
+			std::string& belowRowString = schematicData[row + 1];
+			for (int i = startIndex; i <= endIndex; i++)
+			{
+				if (IsSymbol(belowRowString[i]))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}	
+
+	int AdventOfCodeDayThree()
+	{
+		using namespace std;
+
+		string inputFileName = string(DATA_DIRECTORY) + string("Day3/input.txt");
+
+		vector<string> schematicData;
+
+		ifstream inputFile;
+		inputFile.open(inputFileName);
+
+		string line;
+		int answerSum = 0;
+		int answerGearRatio = 0;
+		assert(inputFile.is_open());
+		{
+			while (getline(inputFile, line))
+			{
+				schematicData.push_back(line);
+			}
+
+			inputFile.close();		
+		}
+
+		//Part One
+		for (int row = 0; row < schematicData.size(); row++)
+		{
+			const std::string& rowString = schematicData[row];
+			for (int column = 0; column < rowString.length(); column++)
+			{
+				if (isdigit(rowString[column]))
+				{
+					int startIndex = column;
+					int length = 1;
+					while (++column < rowString.length() && isdigit(rowString[column]))
+					{
+						length++;
+					}
+
+					if (IsPartNumber(row, startIndex, length, schematicData))
+					{
+						int partNumber = MakeNumber(startIndex, length, rowString);
+						answerSum += partNumber;
+					}
+
+				}
+			}
+		}
+
+		//Part Two
+		for (int row = 0; row < schematicData.size(); row++)
+		{
+			const std::string& rowString = schematicData[row];
+			for (int column = 0; column < rowString.length(); column++)
+			{
+				if (rowString[column] == GEAR_SYMBOL)
+				{
+					int gearRatio = FindGearRatio(row, column, schematicData);
+					answerGearRatio += gearRatio;
+				}
+			}
+		}
+
+
+		cout << "Day 3 - Part One answer: " << answerSum << " and Part Two: " << answerGearRatio << endl;
+
+		return answerSum;
 	}
 }

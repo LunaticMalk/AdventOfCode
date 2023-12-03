@@ -10,6 +10,7 @@ int main()
 
     AdventDayOne::AdventOfCodeDay1();
     AdventDayTwo::AdventOfCodeDayTwo();
+    AdventDayThree::AdventOfCodeDayThree();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

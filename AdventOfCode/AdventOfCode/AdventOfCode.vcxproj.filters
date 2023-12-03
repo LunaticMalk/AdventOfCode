@@ -22,6 +22,9 @@
     <Filter Include="Data\Day2">
       <UniqueIdentifier>{e3f7ce1d-f8ae-4d7c-b81c-b9c2fcb33220}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Day3">
+      <UniqueIdentifier>{2d961b9c-6214-4d2f-be19-c03dd76495ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdventOfCode.cpp">
