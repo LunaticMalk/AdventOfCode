@@ -15,3 +15,8 @@ namespace AdventDayTwo { int AdventOfCodeDayTwo(); }
 * Day 2 2023
 */
 namespace AdventDayThree { int AdventOfCodeDayThree(); }
+
+/*
+* Day 2 2023
+*/
+namespace AdventDayFour { int AdventOfCodeDayFour(); }

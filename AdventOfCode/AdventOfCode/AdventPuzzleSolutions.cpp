@@ -178,7 +178,7 @@ namespace AdventDayTwo
 
 	struct GameStats
 	{
-		int gameNumber;
+		int gameNumber = 0;
 		int maxBlue = 0;
 		int maxGreen = 0;
 		int maxRed = 0;
@@ -547,5 +547,127 @@ namespace AdventDayThree
 		cout << "Day 3 - Part One answer: " << answerSum << " and Part Two: " << answerGearRatio << endl;
 
 		return answerSum;
+	}
+}
+
+/***************************************************************
+*  Day 4
+****************************************************************/
+namespace AdventDayFour
+{
+	std::vector<int> scratchCardCounts;
+	const int MAX_CARD_COUNT = 198; //we know let's cheat
+
+	int GetGameCardScore(const char* line, int& outWinningNumberCount)
+	{
+		//promised output format! We can cheat a bit
+		//Card   1: 59 65 20 66 55 92 43 23 98 70 | 99 81 56 30 88 55 57 11 90 45 53 28 33 20 84 54 24 64 74 98 36 77 61 82 69
+		constexpr int HEADER_SPACE = 10;
+		constexpr int WINNING_NUMBER_COUNT = 10;
+		constexpr int GUESSES_COUNT = 25;
+		constexpr int NUMBER_LENGTH = 2;
+
+		int winningNumbers[WINNING_NUMBER_COUNT];
+		int guesses[GUESSES_COUNT];
+		outWinningNumberCount = 0;
+
+		const char* strIter = line + HEADER_SPACE;
+		char numberSubstring[3];
+		memset(numberSubstring, 0, 3); //null-terminate
+		for (int i = 0; i < WINNING_NUMBER_COUNT; i++)
+		{
+			strncpy_s(numberSubstring, strIter, NUMBER_LENGTH);			
+			int value = atoi(numberSubstring);
+			winningNumbers[i] = value;
+			strIter += NUMBER_LENGTH + 1; //for the space
+		}
+
+		//we should be at the line here
+		assert(*strIter == '|');
+		strIter += 2;
+
+		for (int i = 0; i < GUESSES_COUNT; i++)
+		{
+			strncpy_s(numberSubstring, strIter, NUMBER_LENGTH);
+			int value = atoi(numberSubstring);
+			guesses[i] = value;
+			strIter += NUMBER_LENGTH + 1; //for the space
+		}
+
+		int score = 0;
+		for (int i = 0; i < GUESSES_COUNT; i++)
+		{
+			for (int j = 0; j < WINNING_NUMBER_COUNT; j++)
+			{
+				if (guesses[i] == winningNumbers[j])
+				{
+					score == 0 ? score = 1 : score *= 2;
+					outWinningNumberCount++;
+				}
+			}
+		}
+
+		return score;
+	}
+
+	int GetPartTwoGameCardScore(int cardIndex, const char* line)
+	{
+		while (scratchCardCounts.size() <= cardIndex)
+		{
+			scratchCardCounts.push_back(1);
+		}
+
+		int cardsToPlay = scratchCardCounts[cardIndex];
+
+		int winningNumberCount = 0;
+		//don't need the score
+		GetGameCardScore(line, winningNumberCount);
+
+		//we can't add more than the number of cards we have left
+		winningNumberCount = min(MAX_CARD_COUNT - cardIndex, winningNumberCount);
+
+		while (scratchCardCounts.size() <= cardIndex + winningNumberCount)
+		{
+			scratchCardCounts.push_back(1);
+		}
+
+		for (int i = 0; i < winningNumberCount; i++)
+		{
+			scratchCardCounts[cardIndex + i + 1] += cardsToPlay; //1 for each card "played"
+		}
+
+		return winningNumberCount * cardsToPlay;
+	}
+
+	int AdventOfCodeDayFour()
+	{
+		using namespace std;
+
+		string inputFileName = string(DATA_DIRECTORY) + string("Day4/input.txt");
+
+		ifstream inputFile;
+		inputFile.open(inputFileName);
+
+		int rollingScore = 0;
+		int partTwoCardCount = MAX_CARD_COUNT; //starting with the cards we have
+		int lineCount = 1; //starting at card 1
+		int winningCardsBuffer = 0; //bleh
+		string line;
+		assert(inputFile.is_open());
+		{
+			while (getline(inputFile, line))
+			{				
+				int gameScore = GetGameCardScore(line.c_str(), winningCardsBuffer);
+				rollingScore += gameScore;
+
+				int cardsAdded = GetPartTwoGameCardScore(lineCount, line.c_str());
+				partTwoCardCount += cardsAdded;
+
+				lineCount++;
+			}
+		}
+
+		cout << "Day 4 - Part One answer: " << rollingScore << " and Part Two: " << partTwoCardCount << endl;
+		return rollingScore;
 	}
 }

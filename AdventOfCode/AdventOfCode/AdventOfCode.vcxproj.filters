@@ -25,6 +25,9 @@
     <Filter Include="Data\Day3">
       <UniqueIdentifier>{2d961b9c-6214-4d2f-be19-c03dd76495ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Day4">
+      <UniqueIdentifier>{57577f39-dd07-4776-a870-5e9870bbef74}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdventOfCode.cpp">
@@ -45,6 +48,12 @@
     </Text>
     <Text Include="..\Data\Day2\input.txt">
       <Filter>Data\Day2</Filter>
+    </Text>
+    <Text Include="..\Data\Day3\input.txt">
+      <Filter>Data\Day3</Filter>
+    </Text>
+    <Text Include="..\Data\Day4\input.txt">
+      <Filter>Data\Day4</Filter>
     </Text>
   </ItemGroup>
 </Project>
