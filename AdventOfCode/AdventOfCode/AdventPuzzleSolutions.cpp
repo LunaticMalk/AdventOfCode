@@ -694,6 +694,25 @@ namespace AdventDayFive
 	std::vector<RangeEntry> temperatureToHumidityMap;
 	std::vector<RangeEntry> humidityToLocationMap;
 
+	void ParseSeedValues(std::string& line)
+	{
+		//example line
+		//seeds: 3640772818 104094365 1236480411 161072229 376099792 370219099 1590268366 273715765 3224333694 68979978 2070154278 189826014 3855332650 230434913 3033760782 82305885 837883389 177854788 2442602612 571881366
+		//we can cheat and know the numbers start at 
+		size_t startIndex = 7;
+		size_t endIndex = 0;
+
+		while(startIndex != std::string::npos)
+		{
+		}
+		endIndex = token.find(" ", startIndex);
+		std::string number_token = token.substr(inner_start_pos, (inner_end_pos - inner_start_pos));
+	}
+
+	void ParseMapValues(std::string& line, std::vector<RangeEntry>& mapVector)
+	{
+	}
+
 	int AdventOfCodeDayFive()
 	{
 		using namespace std;
@@ -706,10 +725,141 @@ namespace AdventDayFive
 		string line;
 		assert(inputFile.is_open());
 		{
-			while (getline(inputFile, line))
-			{
+			getline(inputFile, line);
 
+			//line 1 is seeds
+			ParseSeedValues(line);
+
+			//GONNA DO THIS DUMB LET'S GO
+			//find the next map
+			{
+				while (getline(inputFile, line))
+				{
+					if (strstr(line.c_str(), "seed-to-soil") == 0)
+					{
+						break;
+					}
+				}
+
+				while (getline(inputFile, line))
+				{
+					if (isdigit(line[0]))
+					{
+						ParseMapValues(line, seedToSoilMap);
+					}
+					else { break; }
+				}
 			}
+			{
+				while (getline(inputFile, line))
+				{
+					if (strstr(line.c_str(), "soil-to-fertilizer") == 0)
+					{
+						break;
+					}
+				}
+
+				while (getline(inputFile, line))
+				{
+					if (isdigit(line[0]))
+					{
+						ParseMapValues(line, soilToFertilizerMap);
+					}
+					else { break; }
+				}
+			}
+			{
+				while (getline(inputFile, line))
+				{
+					if (strstr(line.c_str(), "fertilizer-to-water") == 0)
+					{
+						break;
+					}
+				}
+
+				while (getline(inputFile, line))
+				{
+					if (isdigit(line[0]))
+					{
+						ParseMapValues(line, fertilizerToWaterMap);
+					}
+					else { break; }
+				}
+			}
+			{
+				while (getline(inputFile, line))
+				{
+					if (strstr(line.c_str(), "water-to-light") == 0)
+					{
+						break;
+					}
+				}
+
+				while (getline(inputFile, line))
+				{
+					if (isdigit(line[0]))
+					{
+						ParseMapValues(line, waterToLightMap);
+					}
+					else { break; }
+				}
+			}
+			{
+				while (getline(inputFile, line))
+				{
+					if (strstr(line.c_str(), "light-to-temperature") == 0)
+					{
+						break;
+					}
+				}
+
+				while (getline(inputFile, line))
+				{
+					if (isdigit(line[0]))
+					{
+						ParseMapValues(line, lightToTemperatureMap);
+					}
+					else { break; }
+				}
+			}
+			{
+				while (getline(inputFile, line))
+				{
+					if (strstr(line.c_str(), "temperature-to-humidity") == 0)
+					{
+						break;
+					}
+				}
+
+				while (getline(inputFile, line))
+				{
+					if (isdigit(line[0]))
+					{
+						ParseMapValues(line, temperatureToHumidityMap);
+					}
+					else { break; }
+				}
+			}
+			{
+				while (getline(inputFile, line))
+				{
+					if (strstr(line.c_str(), "humidity-to-location") == 0)
+					{
+						break;
+					}
+				}
+
+				while (getline(inputFile, line))
+				{
+					if (isdigit(line[0]))
+					{
+						ParseMapValues(line, humidityToLocationMap);
+					}
+					else { break; }
+				}
+			}
+
+			
 		}
 	}
 }
