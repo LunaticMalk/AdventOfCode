@@ -12,4 +12,5 @@ int main()
     AdventDayTwo::AdventOfCodeDayTwo();
     AdventDayThree::AdventOfCodeDayThree();
     AdventDayFour::AdventOfCodeDayFour();
+    AdventDayFive::AdventOfCodeDayFive();
 }

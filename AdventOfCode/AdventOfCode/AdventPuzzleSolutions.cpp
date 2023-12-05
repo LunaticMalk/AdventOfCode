@@ -671,3 +671,45 @@ namespace AdventDayFour
 		return rollingScore;
 	}
 }
+
+/***************************************************************
+*  Day 5
+****************************************************************/
+namespace AdventDayFive
+{
+	struct RangeEntry
+	{
+		long sourceStart = 0;
+		long sourceEnd = 0;
+		long destinationStart = 0;
+		long destinationEnd = 0;
+	};
+
+	std::vector<long> seedValues;
+	std::vector<RangeEntry> seedToSoilMap;
+	std::vector<RangeEntry> soilToFertilizerMap;
+	std::vector<RangeEntry> fertilizerToWaterMap;
+	std::vector<RangeEntry> waterToLightMap;
+	std::vector<RangeEntry> lightToTemperatureMap;
+	std::vector<RangeEntry> temperatureToHumidityMap;
+	std::vector<RangeEntry> humidityToLocationMap;
+
+	int AdventOfCodeDayFive()
+	{
+		using namespace std;
+
+		string inputFileName = string(DATA_DIRECTORY) + string("Day4/input.txt");
+
+		ifstream inputFile;
+		inputFile.open(inputFileName);
+
+		string line;
+		assert(inputFile.is_open());
+		{
+			while (getline(inputFile, line))
+			{
+
+			}
+		}
+	}
+}
