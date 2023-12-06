@@ -673,6 +673,7 @@ namespace AdventDayFour
 }
 
 typedef unsigned long ulong; //u short now
+typedef long long llong;
 /***************************************************************
 *  Day 5
 ****************************************************************/
@@ -978,6 +979,7 @@ namespace AdventDayFive
 					else { break; }
 				}
 			}
+			inputFile.close();
 
 			//Ok file is parsed, let's operate
 			for (int i = 0; i < seedValues.size(); i++)
@@ -997,7 +999,149 @@ namespace AdventDayFive
 						
 		} //assert file is open
 
+
 		cout << "Day 5 - Part One answer: " << lowestLocation << " and Part Two: " << lowestLocationPartTwo << endl;		
 		return lowestLocation;
+	}
+}
+
+/***************************************************************
+*  Day 5
+****************************************************************/
+namespace AdventDaySix
+{
+	struct RecordTimes
+	{
+		int time = 0;
+		int distance = 0;
+	};
+
+	int FindNextNumber(const std::string& line, size_t& startIndex)
+	{
+		size_t endIndex = 0;
+		
+		while (!isdigit(line[startIndex]))
+		{
+			startIndex++;
+		}
+
+		endIndex = line.find(" ", startIndex);
+		std::string number_token = line.substr(startIndex, (endIndex - startIndex));
+		int numberValue = atoi(number_token.c_str());
+		startIndex = endIndex;
+
+		return numberValue;
+	}
+
+	int DetermineWinningPossibilitiesForRace(const llong endTime, const llong recordDistance)
+	{
+		int possibleHoldTime = 1; //0 never wins, get out of here (nor does full time)
+		int winningTimesCount = 0;
+
+		for (; possibleHoldTime < endTime; possibleHoldTime++)
+		{
+			if (possibleHoldTime * (endTime - possibleHoldTime) >= recordDistance)
+			{
+				++winningTimesCount;
+			}
+		}
+
+		return winningTimesCount;
+	}
+
+	int DetermineWinningPossibilitiesForRace(const RecordTimes& raceTimes)
+	{
+		return DetermineWinningPossibilitiesForRace((llong)raceTimes.time, (llong)raceTimes.distance);
+	}
+
+	int AdventOfCodeDaySix()
+	{
+		using namespace std;
+
+		string inputFileName = string(DATA_DIRECTORY) + string("Day6/input.txt");
+
+		ifstream inputFile;
+		inputFile.open(inputFileName);
+
+		RecordTimes time1;
+		RecordTimes time2;
+		RecordTimes time3;
+		RecordTimes time4;
+
+		int partOneAnswer = 0;
+		int partTwoAnswer = 0;
+
+		string line;
+		assert(inputFile.is_open());
+		{
+			//file is only two lines long, let's make this straightforward
+			getline(inputFile, line);
+			size_t startIndex = 0;
+			
+			//startIndex is updated inside the function
+			time1.time = FindNextNumber(line, startIndex);
+			time2.time = FindNextNumber(line, startIndex);
+			time3.time = FindNextNumber(line, startIndex);
+			time4.time = FindNextNumber(line, startIndex);
+
+			startIndex = 0;
+			getline(inputFile, line);
+			time1.distance = FindNextNumber(line, startIndex);
+			time2.distance = FindNextNumber(line, startIndex);
+			time3.distance = FindNextNumber(line, startIndex);
+			time4.distance = FindNextNumber(line, startIndex);
+		}
+		inputFile.close();
+
+		int race1Possibilities = DetermineWinningPossibilitiesForRace(time1);
+		int race2Possibilities = DetermineWinningPossibilitiesForRace(time2);
+		int race3Possibilities = DetermineWinningPossibilitiesForRace(time3);
+		int race4Possibilities = DetermineWinningPossibilitiesForRace(time4);
+
+		partOneAnswer = race1Possibilities * race2Possibilities * race3Possibilities * race4Possibilities;
+
+		//re-read the file for part 2...
+		inputFile.open(inputFileName);
+
+		llong bigRaceTime = 0;
+		llong bigRaceDistance = 0;
+		assert(inputFile.is_open());
+		{
+			getline(inputFile, line);
+			int lineIndex = 0;
+			string numberString;
+			
+			while(lineIndex < line.size())
+			{
+				if(isdigit(line[lineIndex]))
+				{
+					numberString.push_back(line[lineIndex]);
+				}
+				lineIndex++;
+			}
+
+			bigRaceTime = atoll(numberString.c_str());
+
+			getline(inputFile, line);
+			lineIndex = 0;
+			numberString.clear();
+
+			while (lineIndex < line.size())
+			{
+				if (isdigit(line[lineIndex]))
+				{
+					numberString.push_back(line[lineIndex]);
+				}
+				lineIndex++;
+			}
+
+			bigRaceDistance = atoll(numberString.c_str());
+		}
+		inputFile.close();
+
+		partTwoAnswer = DetermineWinningPossibilitiesForRace(bigRaceTime, bigRaceDistance);
+
+		cout << "Day 6 - Part One answer: " << partOneAnswer << " and Part Two: " << partTwoAnswer << endl;
+		return 0;
 	}
 }

@@ -8,9 +8,10 @@ int main()
 {
     std::cout << "Advent of Code answers Below: \n";
 
-    AdventDayOne::AdventOfCodeDay1();
-    AdventDayTwo::AdventOfCodeDayTwo();
-    AdventDayThree::AdventOfCodeDayThree();
-    AdventDayFour::AdventOfCodeDayFour();
-    AdventDayFive::AdventOfCodeDayFive();
+    //AdventDayOne::AdventOfCodeDay1();
+    //AdventDayTwo::AdventOfCodeDayTwo();
+    //AdventDayThree::AdventOfCodeDayThree();
+    //AdventDayFour::AdventOfCodeDayFour();
+   // AdventDayFive::AdventOfCodeDayFive();
+    AdventDaySix::AdventOfCodeDaySix();
 }
