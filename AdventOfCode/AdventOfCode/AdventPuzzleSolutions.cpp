@@ -672,6 +672,7 @@ namespace AdventDayFour
 	}
 }
 
+typedef unsigned long ulong; //u short now
 /***************************************************************
 *  Day 5
 ****************************************************************/
@@ -679,13 +680,20 @@ namespace AdventDayFive
 {
 	struct RangeEntry
 	{
-		long sourceStart = 0;
-		long sourceEnd = 0;
-		long destinationStart = 0;
-		long destinationEnd = 0;
+		ulong sourceStart = 0;
+		ulong sourceEnd = 0;
+		ulong destinationStart = 0;
+		ulong destinationEnd = 0;
 	};
 
-	std::vector<long> seedValues;
+	struct Range
+	{
+		ulong start = 0;
+		ulong length = 0;
+	};
+
+	std::vector<ulong> seedValues;
+	std::vector<Range> seedRangeValues;
 	std::vector<RangeEntry> seedToSoilMap;
 	std::vector<RangeEntry> soilToFertilizerMap;
 	std::vector<RangeEntry> fertilizerToWaterMap;
@@ -694,7 +702,7 @@ namespace AdventDayFive
 	std::vector<RangeEntry> temperatureToHumidityMap;
 	std::vector<RangeEntry> humidityToLocationMap;
 
-	void ParseSeedValues(std::string& line)
+	void ParseSeedValues(const std::string& line)
 	{
 		//example line
 		//seeds: 3640772818 104094365 1236480411 161072229 376099792 370219099 1590268366 273715765 3224333694 68979978 2070154278 189826014 3855332650 230434913 3033760782 82305885 837883389 177854788 2442602612 571881366
@@ -704,23 +712,135 @@ namespace AdventDayFive
 
 		while(startIndex != std::string::npos)
 		{
+			Range rangeData;
+
+			endIndex = line.find(" ", startIndex);
+			std::string number_token = line.substr(startIndex, (endIndex - startIndex)); //pretty sure this works even if it it's npos it's just messy
+			ulong seedValue = strtoul(number_token.c_str(), nullptr, 10);
+			seedValues.push_back(seedValue);
+			rangeData.start = seedValue;	
+			startIndex = endIndex + 1;
+
+			endIndex = line.find(" ", startIndex);
+			number_token = line.substr(startIndex, (endIndex - startIndex));
+			seedValue = strtoul(number_token.c_str(), nullptr, 10);
+			seedValues.push_back(seedValue);
+			rangeData.length = seedValue;
+			startIndex = endIndex == std::string::npos ? endIndex : endIndex + 1;
+
+			seedRangeValues.push_back(rangeData);
 		}
-		endIndex = token.find(" ", startIndex);
-		std::string number_token = token.substr(inner_start_pos, (inner_end_pos - inner_start_pos));
 	}
 
 	void ParseMapValues(std::string& line, std::vector<RangeEntry>& mapVector)
 	{
+		//example line
+		// destination_start source_start range
+		//496269031 1203272644 52136246
+		//three known numbers hooo
+		size_t startIndex = 0;
+		size_t endIndex = 0;
+
+		RangeEntry entryData;
+		
+		endIndex = line.find(" ");
+		std::string number_token = line.substr(startIndex, endIndex);
+		ulong numberValue = strtoul(number_token.c_str(), nullptr, 10);
+		entryData.destinationStart = numberValue;
+		startIndex = endIndex + 1;
+
+		endIndex = line.find(" ", startIndex);
+		number_token = line.substr(startIndex, (endIndex - startIndex));
+		numberValue = strtoul(number_token.c_str(), nullptr, 10);
+		entryData.sourceStart = numberValue;
+		startIndex = endIndex + 1;
+
+		endIndex = line.find(" ", startIndex);
+		number_token = line.substr(startIndex, (endIndex - startIndex));
+		numberValue = strtoul(number_token.c_str(), nullptr, 10);
+		entryData.sourceEnd = entryData.sourceStart + numberValue;
+		entryData.destinationEnd = entryData.destinationStart + numberValue;
+		
+		mapVector.push_back(entryData);
+	}
+
+	ulong TranslateMappedValue(const ulong sourceValue, const std::vector<RangeEntry>& mapVector)
+	{
+		for (int i = 0; i < mapVector.size(); i++)
+		{
+			const RangeEntry& entryData = mapVector[i];
+			if (sourceValue >= entryData.sourceStart && sourceValue <= entryData.sourceEnd)
+			{
+				ulong delta = sourceValue - entryData.sourceStart;
+				return entryData.destinationStart + delta;
+			}
+		}
+
+		return sourceValue;
+	}
+
+	ulong TranslateMappedValueReverse(const ulong destinationValue, const std::vector<RangeEntry>& mapVector)
+	{
+		for (int i = 0; i < mapVector.size(); i++)
+		{
+			const RangeEntry& entryData = mapVector[i];
+			if (destinationValue >= entryData.destinationStart && destinationValue <= entryData.destinationEnd)
+			{
+				ulong delta = destinationValue - entryData.destinationStart;
+				return entryData.sourceStart + delta;
+			}
+		}
+
+		return destinationValue;
+	}
+
+	ulong FindLocation(const ulong seedValue)
+	{
+		ulong value	= TranslateMappedValue(seedValue, seedToSoilMap);
+		value = TranslateMappedValue(value, soilToFertilizerMap);
+		value = TranslateMappedValue(value, fertilizerToWaterMap);
+		value = TranslateMappedValue(value, waterToLightMap);
+		value = TranslateMappedValue(value, lightToTemperatureMap);
+		value = TranslateMappedValue(value, temperatureToHumidityMap);
+		value = TranslateMappedValue(value, humidityToLocationMap);
+
+		return value;
+	}
+
+	bool FindSeed(const ulong locationValue)
+	{
+		ulong value = TranslateMappedValueReverse(locationValue, humidityToLocationMap);
+		value = TranslateMappedValueReverse(value, temperatureToHumidityMap);
+		value = TranslateMappedValueReverse(value, lightToTemperatureMap);
+		value = TranslateMappedValueReverse(value, waterToLightMap);
+		value = TranslateMappedValueReverse(value, fertilizerToWaterMap);
+		value = TranslateMappedValueReverse(value, soilToFertilizerMap);
+		value = TranslateMappedValueReverse(value, seedToSoilMap);
+
+		//find it in the seed vector if it's there
+		for (int i = 0; i < seedRangeValues.size(); i++)
+		{
+			Range& entryData = seedRangeValues[i];
+			if (value >= entryData.start && value <= (entryData.start + entryData.length)) //should store the end but listen I fucked up
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	int AdventOfCodeDayFive()
 	{
 		using namespace std;
 
-		string inputFileName = string(DATA_DIRECTORY) + string("Day4/input.txt");
+		string inputFileName = string(DATA_DIRECTORY) + string("Day5/input.txt");
 
 		ifstream inputFile;
 		inputFile.open(inputFileName);
+
+		ulong lowestLocation = MAXULONG32;
+		ulong lowestLocationPartTwo = 0;
 
 		string line;
 		assert(inputFile.is_open());
@@ -735,7 +855,7 @@ namespace AdventDayFive
 			{
 				while (getline(inputFile, line))
 				{
-					if (strstr(line.c_str(), "seed-to-soil") == 0)
+					if (strstr(line.c_str(), "seed-to-soil") != 0)
 					{
 						break;
 					}
@@ -753,7 +873,7 @@ namespace AdventDayFive
 			{
 				while (getline(inputFile, line))
 				{
-					if (strstr(line.c_str(), "soil-to-fertilizer") == 0)
+					if (strstr(line.c_str(), "soil-to-fertilizer") != 0)
 					{
 						break;
 					}
@@ -771,7 +891,7 @@ namespace AdventDayFive
 			{
 				while (getline(inputFile, line))
 				{
-					if (strstr(line.c_str(), "fertilizer-to-water") == 0)
+					if (strstr(line.c_str(), "fertilizer-to-water") != 0)
 					{
 						break;
 					}
@@ -789,7 +909,7 @@ namespace AdventDayFive
 			{
 				while (getline(inputFile, line))
 				{
-					if (strstr(line.c_str(), "water-to-light") == 0)
+					if (strstr(line.c_str(), "water-to-light") != 0)
 					{
 						break;
 					}
@@ -807,7 +927,7 @@ namespace AdventDayFive
 			{
 				while (getline(inputFile, line))
 				{
-					if (strstr(line.c_str(), "light-to-temperature") == 0)
+					if (strstr(line.c_str(), "light-to-temperature") != 0)
 					{
 						break;
 					}
@@ -825,7 +945,7 @@ namespace AdventDayFive
 			{
 				while (getline(inputFile, line))
 				{
-					if (strstr(line.c_str(), "temperature-to-humidity") == 0)
+					if (strstr(line.c_str(), "temperature-to-humidity") != 0)
 					{
 						break;
 					}
@@ -843,7 +963,7 @@ namespace AdventDayFive
 			{
 				while (getline(inputFile, line))
 				{
-					if (strstr(line.c_str(), "humidity-to-location") == 0)
+					if (strstr(line.c_str(), "humidity-to-location") != 0)
 					{
 						break;
 					}
@@ -859,7 +979,25 @@ namespace AdventDayFive
 				}
 			}
 
-			
-		}
+			//Ok file is parsed, let's operate
+			for (int i = 0; i < seedValues.size(); i++)
+			{
+				ulong locationSpot = FindLocation(seedValues[i]);
+				if (locationSpot < lowestLocation)
+				{
+					lowestLocation = locationSpot;
+				}
+			}
+
+			//wheee
+			while (lowestLocationPartTwo != MAXULONG32 && !FindSeed(lowestLocationPartTwo))
+			{
+				lowestLocationPartTwo++;
+			}
+						
+		} //assert file is open
+
+		cout << "Day 5 - Part One answer: " << lowestLocation << " and Part Two: " << lowestLocationPartTwo << endl;		
+		return lowestLocation;
 	}
 }
