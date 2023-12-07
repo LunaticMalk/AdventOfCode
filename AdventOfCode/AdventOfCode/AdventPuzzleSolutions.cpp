@@ -1192,18 +1192,19 @@ namespace AdventDaySeven
 
 	constexpr int CARD_TYPE_COUNT = 13;
 
+	//now has Jokers
 	const std::map<char, int> CardValueOrder =
 	{
-		{ '2', 1 },
-		{ '3', 2 },
-		{ '4', 3 },
-		{ '5', 4 },
-		{ '6', 5 },
-		{ '7', 6 },
-		{ '8', 7 },
-		{ '9', 8 },
-		{ 'T', 9 },
-		{ 'J', 10 },
+		{ 'J', 1 },
+		{ '2', 2 },
+		{ '3', 3 },
+		{ '4', 4 },
+		{ '5', 5 },
+		{ '6', 6 },
+		{ '7', 7 },
+		{ '8', 8 },
+		{ '9', 9 },
+		{ 'T', 10 },
 		{ 'Q', 11 },
 		{ 'K', 12 },
 		{ 'A', 13 },
@@ -1228,6 +1229,8 @@ namespace AdventDaySeven
 		for (int i = 0; i < handVector.size(); i++)
 		{
 			CamelCardHand& hand = handVector[i];
+			bool handHasJokers = false;
+			int jokerIndex = -1;
 
 			//find out the card info, looking for pairs
 			for (int cardIndex = 0; cardIndex < MAX_HAND_SIZE; cardIndex++)
@@ -1246,6 +1249,12 @@ namespace AdventDaySeven
 				if (!seen)
 				{
 					cardFoundInfo.push_back(CardInfo(cardvalue));
+
+					if (cardvalue == 'J')
+					{
+						handHasJokers = true;
+						jokerIndex = cardFoundInfo.size() - 1;
+					}
 				}
 			}
 
@@ -1255,19 +1264,16 @@ namespace AdventDaySeven
 				assert(cardFoundInfo[0].count == 5);
 
 				hand.type = HANDTYPE_FIVEOFAKIND;
-				FiveOfAKinds.push_back(&hand);
 			}
 			else if (cardFoundInfo.size() == 2)
 			{
 				if (cardFoundInfo[0].count == 3 || cardFoundInfo[0].count == 2)
 				{
 					hand.type = HANDTYPE_FULLHOUSE;
-					FullHouses.push_back(&hand);
 				}
 				else if (cardFoundInfo[0].count == 4 || cardFoundInfo[1].count == 4)
 				{
 					hand.type = HANDTYPE_FOUROFAKIND;
-					FourOfAKinds.push_back(&hand);
 				}
 			}
 			else
@@ -1289,25 +1295,95 @@ namespace AdventDaySeven
 				if (highestMatch == 3)
 				{
 					hand.type = HANDTYPE_THREEOFAKIND;
-					ThreeOfAKinds.push_back(&hand);
 				}
 				else if (pairCount == 2)
 				{
 					hand.type = HANDTYPE_TWOPAIR;
-					TwoPairs.push_back(&hand);
 				}
 				else if (pairCount == 1)
 				{
 					hand.type = HANDTYPE_ONEPAIR;
-					OnePairs.push_back(&hand);
 				}
 				else
 				{
 					assert(pairCount == 0 && highestMatch == 1);
 					hand.type = HANDTYPE_HIGHCARD;
-					HighCards.push_back(&hand);
 				}
 			}
+
+			//JOKERS! Let's find out if we have jokers and handle AFTER (easier to narrow down logically)
+			if (handHasJokers)
+			{
+				CardInfo& jokerInfo = cardFoundInfo[jokerIndex];
+				assert(jokerInfo.cardValue == 'J');
+
+				//note: five of a kind is five jokers, we already have the highest hand, skip that
+				if (hand.type == HANDTYPE_FOUROFAKIND || hand.type == HANDTYPE_FULLHOUSE)
+				{
+					//no matter which one is jokers, we now have 5
+					hand.type = HANDTYPE_FIVEOFAKIND;
+				}
+				else if (hand.type == HANDTYPE_THREEOFAKIND)
+				{
+					//we either have three jokers and two diff cards (or we'd have a full house)
+					// or we have three cards and one joker (else we'd have a full house) so we have four
+					hand.type = HANDTYPE_FOUROFAKIND;
+				}
+				else if (hand.type == HANDTYPE_TWOPAIR)
+				{
+					//we either have two jokers, two of a separate card, and an odd card (four of a kind)
+					//or we have two separate pairs and a joker (full house)
+					if (jokerInfo.count == 2)
+					{
+						hand.type = HANDTYPE_FOUROFAKIND;
+					}
+					else
+					{
+						hand.type = HANDTYPE_FULLHOUSE;
+					}
+				}
+				else if (hand.type == HANDTYPE_ONEPAIR)
+				{
+					//we either have two jokers and three separate cards, so three of a kind
+					//or we have two of some other card and one joker...
+					hand.type = HANDTYPE_THREEOFAKIND;
+				}
+				else if(hand.type == HANDTYPE_HIGHCARD)
+				{
+					//we have five different cards, best we have with a joker is one pair
+					hand.type = HANDTYPE_ONEPAIR;
+				}
+
+			}
+
+			//put into vectors for sorting later
+			switch (hand.type)
+			{
+			case HANDTYPE_FIVEOFAKIND:
+				FiveOfAKinds.push_back(&hand);
+				break;
+			case HANDTYPE_FOUROFAKIND:
+				FourOfAKinds.push_back(&hand);
+				break;
+			case HANDTYPE_FULLHOUSE:
+				FullHouses.push_back(&hand);
+				break;
+			case HANDTYPE_THREEOFAKIND:
+				ThreeOfAKinds.push_back(&hand);
+				break;
+			case HANDTYPE_TWOPAIR:
+				TwoPairs.push_back(&hand);
+				break;
+			case HANDTYPE_ONEPAIR:
+				OnePairs.push_back(&hand);
+				break;
+			case HANDTYPE_HIGHCARD:
+				HighCards.push_back(&hand);
+				break;
+			default:
+				assert(false);
+			}
+
 			cardFoundInfo.clear();
 		}
 	}
@@ -1403,7 +1479,7 @@ namespace AdventDaySeven
 		partOneAnswer += AssignRanksAndSumBids(FourOfAKinds, ranking);
 		partOneAnswer += AssignRanksAndSumBids(FiveOfAKinds, ranking);
 		
-		std::cout << "Day 7 - Part One answer: " << partOneAnswer << " and Part Two: " << partTwoAnswer << endl;
+		std::cout << "Day 7 - Part One answer: " << partOneAnswer << " and Part Two: " << partTwoAnswer << "(only part one preserved today)" << endl;
 		return 0;
 	}
 }
