@@ -34,6 +34,9 @@
     <Filter Include="Data\Day6">
       <UniqueIdentifier>{ca7c3131-7753-492f-bb05-473cec258a1b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Day7">
+      <UniqueIdentifier>{01b2bc00-cfc9-4e97-b76b-ea30454cb660}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdventOfCode.cpp">
@@ -42,9 +45,15 @@
     <ClCompile Include="AdventPuzzleSolutions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HelperFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AdventPuzzleSolutions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HelperFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -66,6 +75,9 @@
     </Text>
     <Text Include="..\Data\Day6\input.txt">
       <Filter>Data\Day6</Filter>
+    </Text>
+    <Text Include="..\Data\Day7\input.txt">
+      <Filter>Data\Day7</Filter>
     </Text>
   </ItemGroup>
 </Project>

@@ -141,9 +141,11 @@
   <ItemGroup>
     <ClCompile Include="AdventOfCode.cpp" />
     <ClCompile Include="AdventPuzzleSolutions.cpp" />
+    <ClCompile Include="HelperFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AdventPuzzleSolutions.h" />
+    <ClInclude Include="HelperFunctions.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Data\Day1\input.txt" />
@@ -152,6 +154,7 @@
     <Text Include="..\Data\Day4\input.txt" />
     <Text Include="..\Data\Day5\input.txt" />
     <Text Include="..\Data\Day6\input.txt" />
+    <Text Include="..\Data\Day7\input.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

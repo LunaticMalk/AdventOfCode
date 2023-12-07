@@ -7,6 +7,9 @@
 #include <ctype.h>
 #include <algorithm>
 #include <assert.h>
+#include <map>
+
+#include "HelperFunctions.h"
 
 #define ARRAY_ELEMENT_COUNT(arr) (sizeof(arr)/sizeof(arr[0]))
 
@@ -156,7 +159,7 @@ namespace AdventDayOne
 
 		inputFile.close();
 
-		cout << "Day 1 value: " << authenticationSum << endl;
+		std::cout << "Day 1 value: " << authenticationSum << endl;
 
 		return authenticationSum;
 	}
@@ -293,7 +296,7 @@ namespace AdventDayTwo
 			}
 		}
 		
-		cout << "Day 2 - Part One answer: " << rollingSum << " and Part Two: " << rollingPower << endl;
+		std::cout << "Day 2 - Part One answer: " << rollingSum << " and Part Two: " << rollingPower << endl;
 		return rollingSum;
 	}
 }
@@ -544,7 +547,7 @@ namespace AdventDayThree
 		}
 
 
-		cout << "Day 3 - Part One answer: " << answerSum << " and Part Two: " << answerGearRatio << endl;
+		std::cout << "Day 3 - Part One answer: " << answerSum << " and Part Two: " << answerGearRatio << endl;
 
 		return answerSum;
 	}
@@ -667,7 +670,7 @@ namespace AdventDayFour
 			}
 		}
 
-		cout << "Day 4 - Part One answer: " << rollingScore << " and Part Two: " << partTwoCardCount << endl;
+		std::cout << "Day 4 - Part One answer: " << rollingScore << " and Part Two: " << partTwoCardCount << endl;
 		return rollingScore;
 	}
 }
@@ -1000,13 +1003,13 @@ namespace AdventDayFive
 		} //assert file is open
 
 
-		cout << "Day 5 - Part One answer: " << lowestLocation << " and Part Two: " << lowestLocationPartTwo << endl;		
+		std::cout << "Day 5 - Part One answer: " << lowestLocation << " and Part Two: " << lowestLocationPartTwo << endl;
 		return lowestLocation;
 	}
 }
 
 /***************************************************************
-*  Day 5
+*  Day 6
 ****************************************************************/
 namespace AdventDaySix
 {
@@ -1141,7 +1144,266 @@ namespace AdventDaySix
 
 		partTwoAnswer = DetermineWinningPossibilitiesForRace(bigRaceTime, bigRaceDistance);
 
-		cout << "Day 6 - Part One answer: " << partOneAnswer << " and Part Two: " << partTwoAnswer << endl;
+		std::cout << "Day 6 - Part One answer: " << partOneAnswer << " and Part Two: " << partTwoAnswer << endl;
+		return 0;
+	}
+}
+
+/***************************************************************
+*  Day 7
+****************************************************************/
+namespace AdventDaySeven
+{
+	constexpr int MAX_HAND_SIZE = 5;
+
+	enum HandType
+	{
+		HANDTYPE_UNKNOWN = -1,
+		HANDTYPE_FIRST = 0,
+		HANDTYPE_HIGHCARD = HANDTYPE_FIRST,
+		HANDTYPE_ONEPAIR,
+		HANDTYPE_TWOPAIR,
+		HANDTYPE_THREEOFAKIND,
+		HANDTYPE_FULLHOUSE,
+		HANDTYPE_FOUROFAKIND,
+		HANDTYPE_FIVEOFAKIND,
+		HANDTYPE_MAX = HANDTYPE_FIVEOFAKIND
+	};
+
+	struct CamelCardHand
+	{
+		char hand[MAX_HAND_SIZE + 1];
+		int bid = 0;
+		HandType type = HANDTYPE_UNKNOWN;
+
+		//might not use this
+		int rank = -1;
+	};
+
+	std::vector<CamelCardHand> handVector;
+
+	std::vector<CamelCardHand*> FiveOfAKinds;
+	std::vector<CamelCardHand*> FourOfAKinds;
+	std::vector<CamelCardHand*> FullHouses;
+	std::vector<CamelCardHand*> ThreeOfAKinds;
+	std::vector<CamelCardHand*> TwoPairs;
+	std::vector<CamelCardHand*> OnePairs;
+	std::vector<CamelCardHand*> HighCards;
+
+	constexpr int CARD_TYPE_COUNT = 13;
+
+	const std::map<char, int> CardValueOrder =
+	{
+		{ '2', 1 },
+		{ '3', 2 },
+		{ '4', 3 },
+		{ '5', 4 },
+		{ '6', 5 },
+		{ '7', 6 },
+		{ '8', 7 },
+		{ '9', 8 },
+		{ 'T', 9 },
+		{ 'J', 10 },
+		{ 'Q', 11 },
+		{ 'K', 12 },
+		{ 'A', 13 },
+	};
+
+	void ParseHands()
+	{
+		struct CardInfo
+		{
+			CardInfo(char value)
+			{
+				cardValue = value;
+				count = 1;
+			}
+
+			char cardValue;
+			int count = 0;
+		};
+
+		std::vector<CardInfo> cardFoundInfo;
+
+		for (int i = 0; i < handVector.size(); i++)
+		{
+			CamelCardHand& hand = handVector[i];
+
+			//find out the card info, looking for pairs
+			for (int cardIndex = 0; cardIndex < MAX_HAND_SIZE; cardIndex++)
+			{
+				char cardvalue = hand.hand[cardIndex];
+				bool seen = false;
+				for (unsigned int foundCardIndex = 0; foundCardIndex < cardFoundInfo.size(); foundCardIndex++)
+				{
+					if (cardvalue == cardFoundInfo[foundCardIndex].cardValue)
+					{
+						cardFoundInfo[foundCardIndex].count++;
+						seen = true;
+					}
+				}
+
+				if (!seen)
+				{
+					cardFoundInfo.push_back(CardInfo(cardvalue));
+				}
+			}
+
+			//determine the hand type
+			if (cardFoundInfo.size() == 1)
+			{
+				assert(cardFoundInfo[0].count == 5);
+
+				hand.type = HANDTYPE_FIVEOFAKIND;
+				FiveOfAKinds.push_back(&hand);
+			}
+			else if (cardFoundInfo.size() == 2)
+			{
+				if (cardFoundInfo[0].count == 3 || cardFoundInfo[0].count == 2)
+				{
+					hand.type = HANDTYPE_FULLHOUSE;
+					FullHouses.push_back(&hand);
+				}
+				else if (cardFoundInfo[0].count == 4 || cardFoundInfo[1].count == 4)
+				{
+					hand.type = HANDTYPE_FOUROFAKIND;
+					FourOfAKinds.push_back(&hand);
+				}
+			}
+			else
+			{
+				int pairCount = 0;
+				int highestMatch = 0;
+				for (int cardFoundIndex = 0; cardFoundIndex < cardFoundInfo.size(); cardFoundIndex++)
+				{
+					if (cardFoundInfo[cardFoundIndex].count > highestMatch)
+					{
+						highestMatch = cardFoundInfo[cardFoundIndex].count;
+					}
+					if (cardFoundInfo[cardFoundIndex].count == 2)
+					{
+						pairCount++;
+					}
+				}
+
+				if (highestMatch == 3)
+				{
+					hand.type = HANDTYPE_THREEOFAKIND;
+					ThreeOfAKinds.push_back(&hand);
+				}
+				else if (pairCount == 2)
+				{
+					hand.type = HANDTYPE_TWOPAIR;
+					TwoPairs.push_back(&hand);
+				}
+				else if (pairCount == 1)
+				{
+					hand.type = HANDTYPE_ONEPAIR;
+					OnePairs.push_back(&hand);
+				}
+				else
+				{
+					assert(pairCount == 0 && highestMatch == 1);
+					hand.type = HANDTYPE_HIGHCARD;
+					HighCards.push_back(&hand);
+				}
+			}
+			cardFoundInfo.clear();
+		}
+	}
+
+	void SortHandType(std::vector<CamelCardHand*>& handTypeVector)
+	{
+		//sort by first card
+		//Ascending
+		std::sort(handTypeVector.begin(), handTypeVector.end(), [](CamelCardHand* a, CamelCardHand*b) 
+			{
+				for (int i = 0; i < MAX_HAND_SIZE; i++)
+				{
+					const char& characterA = a->hand[i];
+					const char& characterB = b->hand[i];
+					int valueA = CardValueOrder.at(characterA);
+					int valueB = CardValueOrder.at(characterB);
+
+					if (valueA < valueB)
+					{
+						return true;
+					}
+					else if (valueA > valueB)
+					{
+						return false;
+					}
+					//or keep going
+				}
+				
+				//they match
+				return true;
+			}
+		);
+	}
+
+	int AdventOfCodeDaySeven()
+	{
+		using namespace std;
+
+		string inputFileName = string(DATA_DIRECTORY) + string("Day7/input.txt");
+
+		ifstream inputFile;
+		inputFile.open(inputFileName);
+
+		long partOneAnswer = 0;
+		long partTwoAnswer = 0;
+
+		handVector.reserve(1000); //file is 1000 long
+
+		string line;
+		assert(inputFile.is_open());
+		{
+			while(getline(inputFile, line))
+			{
+				CamelCardHand hand;
+				strncpy_s(hand.hand, line.c_str(), 5);
+
+				size_t numberStart = 6;
+				hand.bid = Helpers::FindNextInt(line, numberStart);
+
+				handVector.push_back(hand);
+			}
+		}
+		inputFile.close();
+
+		ParseHands();
+		SortHandType(FiveOfAKinds);
+		SortHandType(FourOfAKinds);
+		SortHandType(FullHouses);
+		SortHandType(ThreeOfAKinds);
+		SortHandType(TwoPairs);
+		SortHandType(OnePairs);
+		SortHandType(HighCards);
+
+		int ranking = 1;
+		auto AssignRanksAndSumBids = [](std::vector<CamelCardHand*> inVector, int& currentRanking)
+		{
+			long total = 0;
+			for (size_t i = 0; i < inVector.size(); i++)
+			{
+				inVector[i]->rank = currentRanking;
+				total += (currentRanking * inVector[i]->bid);
+				currentRanking++;
+			}
+
+			return total;
+		};
+
+		partOneAnswer += AssignRanksAndSumBids(HighCards, ranking);
+		partOneAnswer += AssignRanksAndSumBids(OnePairs, ranking);
+		partOneAnswer += AssignRanksAndSumBids(TwoPairs, ranking);
+		partOneAnswer += AssignRanksAndSumBids(ThreeOfAKinds, ranking);
+		partOneAnswer += AssignRanksAndSumBids(FullHouses, ranking);
+		partOneAnswer += AssignRanksAndSumBids(FourOfAKinds, ranking);
+		partOneAnswer += AssignRanksAndSumBids(FiveOfAKinds, ranking);
+		
+		std::cout << "Day 7 - Part One answer: " << partOneAnswer << " and Part Two: " << partTwoAnswer << endl;
 		return 0;
 	}
 }

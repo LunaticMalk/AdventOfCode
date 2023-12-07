@@ -13,5 +13,6 @@ int main()
     //AdventDayThree::AdventOfCodeDayThree();
     //AdventDayFour::AdventOfCodeDayFour();
    // AdventDayFive::AdventOfCodeDayFive();
-    AdventDaySix::AdventOfCodeDaySix();
+    //AdventDaySix::AdventOfCodeDaySix();
+    AdventDaySeven::AdventOfCodeDaySeven();
 }
