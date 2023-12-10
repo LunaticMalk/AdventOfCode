@@ -1483,3 +1483,129 @@ namespace AdventDaySeven
 		return 0;
 	}
 }
+
+/***************************************************************
+*  Day 8
+****************************************************************/
+namespace AdventDayEight
+{
+	const size_t LEFT_VALUE = 0;
+	const size_t RIGHT_VALUE = 1;
+	//this could be like a byte or a bit or a bitmask....
+	std::vector<size_t> stepDirections;
+
+	struct NetworkDirections
+	{
+		std::string directions[2];
+	};
+	std::map<std::string, NetworkDirections> mapNetwork;
+
+	void ParseStepDirections(const std::string& line)
+	{
+		size_t length = line.size();
+		stepDirections.reserve(length);
+		for (size_t i = 0; i < length; i++)
+		{
+			if (line[i] == 'L') 
+			{
+				stepDirections.push_back(LEFT_VALUE);
+			}
+			else
+			{
+				stepDirections.push_back(RIGHT_VALUE);
+			}
+		}
+	}
+
+	void ParseNetworkNode(const std::string& line)
+	{
+		//ParseUntilToken(const std::string& line, size_t& startIndex, const char delimiter, std::string& outBuffer)
+		std::string networkNodeName;
+		int endIndex = Helpers::ParseUntilToken(line, 0, ' ', networkNodeName);
+
+		std::string networkLeft;
+		endIndex = Helpers::ParseUntilToken(line, endIndex + 1, '(', networkLeft);
+		endIndex = Helpers::ParseUntilToken(line, endIndex + 1, ',', networkLeft);
+
+		std::string networkRight;
+		endIndex = Helpers::ParseUntilToken(line, endIndex + 2, ')', networkRight);
+
+		NetworkDirections directions;
+		directions.directions[LEFT_VALUE] = networkLeft;
+		directions.directions[RIGHT_VALUE] = networkRight;
+		mapNetwork[networkNodeName] = directions;
+	}
+
+	std::string& TakeASubStep(const std::string& origin, int stepIndex)
+	{
+		int index = stepDirections[stepIndex];
+		
+		return mapNetwork[origin].directions[index];
+	}
+
+	bool TakeAFullStep(std::string& currentLocation, int& outSteps)
+	{
+		size_t stepSize = stepDirections.size();
+		size_t i = 0;
+		for (; i < stepSize; i++)
+		{
+			currentLocation = TakeASubStep(currentLocation, i);
+			if (currentLocation == "ZZZ")
+			{
+				break;
+			}
+		}
+
+		outSteps = i;
+		return currentLocation == "ZZZ";
+	}
+
+	int FollowTheMap()
+	{
+		int stepCount = 0;
+
+		std::string currentLocation = "AAA";
+		int stepsThisStep = 0;
+		while (!TakeAFullStep(currentLocation, stepsThisStep))
+		{
+			stepCount += stepsThisStep;
+		}
+
+		stepCount += stepsThisStep;
+
+		return stepCount;
+	}
+
+	int AdventOfCodeDayEight()
+	{
+		using namespace std;
+
+		string inputFileName = string(DATA_DIRECTORY) + string("Day8/input.txt");
+
+		ifstream inputFile;
+		inputFile.open(inputFileName);
+
+		int partOneAnswer = 0;
+		int partTwoAnswer = 0;
+
+		string line;
+		assert(inputFile.is_open());
+		{
+			getline(inputFile, line); //step pattern
+			
+			ParseStepDirections(line);
+
+			getline(inputFile, line); //blank space
+			while (getline(inputFile, line))
+			{
+				ParseNetworkNode(line);
+			}
+		}
+		inputFile.close();
+
+		partOneAnswer = FollowTheMap();
+
+		std::cout << "Day 8 - Part One answer: " << partOneAnswer << " and Part Two: " << partTwoAnswer << "(only part one done today)" << endl;
+		return 0;
+	}
+}

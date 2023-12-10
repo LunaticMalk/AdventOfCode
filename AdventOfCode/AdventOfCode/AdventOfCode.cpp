@@ -14,5 +14,6 @@ int main()
     //AdventDayFour::AdventOfCodeDayFour();
    // AdventDayFive::AdventOfCodeDayFive();
     //AdventDaySix::AdventOfCodeDaySix();
-    AdventDaySeven::AdventOfCodeDaySeven();
+    //AdventDaySeven::AdventOfCodeDaySeven();
+    AdventDayEight::AdventOfCodeDayEight();
 }

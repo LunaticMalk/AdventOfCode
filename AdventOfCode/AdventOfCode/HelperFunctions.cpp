@@ -17,3 +17,14 @@ int Helpers::FindNextInt(const std::string& line, size_t& startIndex)
 
 	return numberValue;
 }
+
+//returns end index
+int Helpers::ParseUntilToken(const std::string& line, size_t startIndex, const char delimiter, std::string& outBuffer)
+{
+	size_t endIndex = 0;
+
+	endIndex = line.find(delimiter, startIndex);
+	outBuffer = line.substr(startIndex, (endIndex - startIndex));
+
+	return endIndex;
+}
