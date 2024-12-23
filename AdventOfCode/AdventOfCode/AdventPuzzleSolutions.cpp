@@ -13,8 +13,10 @@
 
 #define ARRAY_ELEMENT_COUNT(arr) (sizeof(arr)/sizeof(arr[0]))
 
-const char* DATA_DIRECTORY = "../Data/";
 
+namespace Year2023
+{
+	const char* DATA_DIRECTORY = "../Data/2023/";
 /***************************************************************
 *  Day 1
 ****************************************************************/
@@ -1607,5 +1609,50 @@ namespace AdventDayEight
 
 		std::cout << "Day 8 - Part One answer: " << partOneAnswer << " and Part Two: " << partTwoAnswer << "(only part one done today)" << endl;
 		return 0;
+	}
+}
+}
+
+namespace Year2024
+{
+	const char* DATA_DIRECTORY = "../Data/2024/";
+	int AdventOfCodeDay1()
+	{
+		using namespace std;
+
+		string inputFileName = string(DATA_DIRECTORY) + string("Day1/input.txt");
+
+		ifstream inputFile;
+		inputFile.open(inputFileName);
+
+		string line;
+		int totalDistance = 0;
+		vector<int> leftList;
+		vector<int> rightList;
+		assert(inputFile.is_open());
+		{
+			
+			while (getline(inputFile, line))
+			{
+				int index=0;
+				leftList.push(Helpers::FindNextInt(line, index));
+				rightList.push(Helpers::FindNextInt(line,index));
+			}
+		}
+
+		inputFile.close();
+
+		sort(leftList.begin(), leftList.end());
+		sort(rightList.begin(), rightList.end());
+
+		assert(leftList.length() == rightList.length());
+		for(int i = 0; i < leftList.length(); i++)
+		{
+			totalDistance += abs(leftList[i] - rightList[i]);
+		}
+
+		std::cout << "Day 1 value: " << totalDistance << endl;
+
+		return totalDistance;
 	}
 }
