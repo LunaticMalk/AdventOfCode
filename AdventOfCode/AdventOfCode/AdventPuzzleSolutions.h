@@ -44,7 +44,8 @@ namespace Year2023
     namespace AdventDayEight { int AdventOfCodeDayEight(); }
 }
 
-namespace Year 2024
+namespace Year2024
 {
     namespace AdventDayOne { int AdventOfCodeDay1(); }
+    namespace AdventDayTwo { int AdventOfCodeDay2(); }
 }

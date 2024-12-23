@@ -16,30 +16,6 @@
     <Filter Include="Data">
       <UniqueIdentifier>{17e8990d-c91a-4ee1-9691-976621c80e71}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Data\Day1">
-      <UniqueIdentifier>{4ba15455-2276-4837-8ba2-5b1df6e3133e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data\Day2">
-      <UniqueIdentifier>{e3f7ce1d-f8ae-4d7c-b81c-b9c2fcb33220}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data\Day3">
-      <UniqueIdentifier>{2d961b9c-6214-4d2f-be19-c03dd76495ba}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data\Day4">
-      <UniqueIdentifier>{57577f39-dd07-4776-a870-5e9870bbef74}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data\Day5">
-      <UniqueIdentifier>{323692d1-041a-4ff3-a95b-163ba761c3b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data\Day6">
-      <UniqueIdentifier>{ca7c3131-7753-492f-bb05-473cec258a1b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data\Day7">
-      <UniqueIdentifier>{01b2bc00-cfc9-4e97-b76b-ea30454cb660}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data\Day8">
-      <UniqueIdentifier>{610bc63f-16b3-4c9f-93f8-3c3b2e6fc39a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdventOfCode.cpp">
@@ -59,31 +35,5 @@
     <ClInclude Include="HelperFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\Data\Day1\input.txt">
-      <Filter>Data\Day1</Filter>
-    </Text>
-    <Text Include="..\Data\Day2\input.txt">
-      <Filter>Data\Day2</Filter>
-    </Text>
-    <Text Include="..\Data\Day3\input.txt">
-      <Filter>Data\Day3</Filter>
-    </Text>
-    <Text Include="..\Data\Day4\input.txt">
-      <Filter>Data\Day4</Filter>
-    </Text>
-    <Text Include="..\Data\Day5\input.txt">
-      <Filter>Data\Day5</Filter>
-    </Text>
-    <Text Include="..\Data\Day6\input.txt">
-      <Filter>Data\Day6</Filter>
-    </Text>
-    <Text Include="..\Data\Day7\input.txt">
-      <Filter>Data\Day7</Filter>
-    </Text>
-    <Text Include="..\Data\Day8\input.txt">
-      <Filter>Data\Day8</Filter>
-    </Text>
   </ItemGroup>
 </Project>

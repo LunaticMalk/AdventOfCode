@@ -22,6 +22,10 @@ int main()
 
     {
         using namespace Year2024;
+        AdventDayOne::AdventOfCodeDay1();
+        AdventDayTwo::AdventOfCodeDay2();
+
+        std::cin.get();
     }
     
 }

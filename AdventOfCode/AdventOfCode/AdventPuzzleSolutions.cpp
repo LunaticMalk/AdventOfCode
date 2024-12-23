@@ -1616,43 +1616,226 @@ namespace AdventDayEight
 namespace Year2024
 {
 	const char* DATA_DIRECTORY = "../Data/2024/";
-	int AdventOfCodeDay1()
+	namespace AdventDayOne
+	{
+		int AdventOfCodeDay1()
+		{
+			using namespace std;
+
+			string inputFileName = string(DATA_DIRECTORY) + string("Day1/input.txt");
+
+			ifstream inputFile;
+			inputFile.open(inputFileName);
+
+			string line;
+			int totalDistance = 0;
+			vector<int> leftList;
+			vector<int> rightList;
+			assert(inputFile.is_open());
+			{
+
+				while (getline(inputFile, line))
+				{
+					size_t index = 0;
+					leftList.push_back(Helpers::FindNextInt(line, index));
+					rightList.push_back(Helpers::FindNextInt(line, index));
+				}
+			}
+
+			inputFile.close();
+
+			sort(leftList.begin(), leftList.end());
+			sort(rightList.begin(), rightList.end());
+
+			assert(leftList.size() == rightList.size());
+			for (int i = 0; i < leftList.size(); i++)
+			{
+				totalDistance += abs(leftList[i] - rightList[i]);
+			}
+
+			std::cout << "Day 1 Part One Value: " << totalDistance << endl;
+
+			int similarity = 0;
+
+			for (int i = 0; i < leftList.size(); i++)
+			{
+				int totalCount = 0;
+				bool foundIt = false;
+				int leftValue = leftList[i];
+				for (int j = 0; j < rightList.size(); j++)
+				{
+					if (rightList[j] == leftValue)
+					{
+						foundIt = true;
+						++totalCount;
+					}
+					else if (foundIt)
+					{
+						break; //optimization
+					}
+				}
+
+				similarity += leftValue * totalCount;
+			}
+
+			std::cout << "Day 1 Part Two Value: " << similarity << endl;
+
+			return totalDistance;
+		}
+	}
+
+	namespace AdventDayTwo
 	{
 		using namespace std;
 
-		string inputFileName = string(DATA_DIRECTORY) + string("Day1/input.txt");
+		const int MAX_DELTA = 3;
+		const int MIN_DELTA = 1;
 
-		ifstream inputFile;
-		inputFile.open(inputFileName);
-
-		string line;
-		int totalDistance = 0;
-		vector<int> leftList;
-		vector<int> rightList;
-		assert(inputFile.is_open());
+		struct Report
 		{
-			
-			while (getline(inputFile, line))
+			vector<int> reportValues;
+		};
+		
+		enum LevelDirections
+		{
+			Increase,
+			Decrease,
+			Invalid
+		};
+
+		bool IsSafeDelta(int value1, int value2)
+		{
+			int absDelta = abs(value1 - value2);
+			if ( absDelta > MAX_DELTA || absDelta < MIN_DELTA)
 			{
-				int index=0;
-				leftList.push(Helpers::FindNextInt(line, index));
-				rightList.push(Helpers::FindNextInt(line,index));
+				return false;
 			}
+
+			return true;
 		}
 
-		inputFile.close();
-
-		sort(leftList.begin(), leftList.end());
-		sort(rightList.begin(), rightList.end());
-
-		assert(leftList.length() == rightList.length());
-		for(int i = 0; i < leftList.length(); i++)
+		//intentionally making a copy instead of a reference, more expensive but preserve the original list (I think)
+		bool IsReportSafe(Report report, int problemsAllowed)
 		{
-			totalDistance += abs(leftList[i] - rightList[i]);
+			int problemsAllowedLeft = problemsAllowed;
+			bool safe = true;
+			
+			for (; problemsAllowedLeft >= 0; problemsAllowedLeft--)
+			{
+				LevelDirections direction = LevelDirections::Invalid;
+				int previousValue = -1;
+				int lastIndexChecked = -1;
+
+				for (size_t j = 0; j < report.reportValues.size(); j++)
+				{
+					int nextValue = report.reportValues[j];
+
+					if (direction == LevelDirections::Invalid && previousValue != -1)
+					{
+						if (!IsSafeDelta(previousValue, nextValue))
+						{
+							safe = false;
+							lastIndexChecked = j;
+							break;
+						}
+
+						if (nextValue > previousValue) {
+							direction = LevelDirections::Increase;
+						}
+						else if (nextValue < previousValue)
+						{
+							direction = LevelDirections::Decrease;
+						} //else invalid still
+					}
+					else if (direction == LevelDirections::Increase)
+					{
+						if (!IsSafeDelta(previousValue, nextValue) || previousValue > nextValue)
+						{
+							safe = false;
+							lastIndexChecked = j;
+							break;
+						}
+					}
+					else if (direction == LevelDirections::Decrease)
+					{
+						if (!IsSafeDelta(previousValue, nextValue) || previousValue < nextValue)
+						{
+							safe = false;
+							lastIndexChecked = j;
+							break;
+						}
+					}
+
+					previousValue = nextValue;
+				}
+
+				if (!safe && problemsAllowedLeft > 0 && lastIndexChecked >= 0)
+				{
+					safe = true;
+					report.reportValues.erase(report.reportValues.begin() + lastIndexChecked);
+				}
+			}
+
+			return safe;
 		}
 
-		std::cout << "Day 1 value: " << totalDistance << endl;
+		int AdventOfCodeDay2()
+		{
+			string inputFileName = string(DATA_DIRECTORY) + string("Day2/input.txt");
 
-		return totalDistance;
+			ifstream inputFile;
+			inputFile.open(inputFileName);
+
+			string line;
+			vector<Report> reports;
+
+			
+
+			assert(inputFile.is_open());
+			{
+				while (getline(inputFile, line))
+				{
+					size_t index = 0;
+					Report newReport;
+
+					while (index < line.size())
+					{
+						newReport.reportValues.push_back(Helpers::FindNextInt(line, index));
+					}	
+
+					reports.push_back(newReport);
+				}
+			}
+			inputFile.close();
+
+			int safeReportCount = 0;
+
+			for (size_t i = 0; i < reports.size(); i++)
+			{
+				Report report = reports[i];
+				
+				if (IsReportSafe(report, 0))
+				{
+					safeReportCount++;
+				}
+			}
+
+			std::cout << "Day 2 Part One Value: " << safeReportCount << endl;
+
+			safeReportCount = 0;
+			for (size_t i = 0; i < reports.size(); i++)
+			{
+				Report report = reports[i];
+
+				if (IsReportSafe(report, 1))
+				{
+					safeReportCount++;
+				}
+			}
+
+			std::cout << "Day 2 Part Two Value: " << safeReportCount << endl;
+
+			return safeReportCount;
+		}
 	}
 }
