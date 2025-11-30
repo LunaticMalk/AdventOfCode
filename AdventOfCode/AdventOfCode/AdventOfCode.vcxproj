@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="AdventOfCode.cpp" />
     <ClCompile Include="AdventPuzzleSolutions.cpp" />
+    <ClCompile Include="AdventPuzzleSolutions2025.cpp" />
     <ClCompile Include="HelperFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>

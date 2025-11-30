@@ -49,3 +49,15 @@ namespace Year2024
     namespace AdventDayOne { int AdventOfCodeDay1(); }
     namespace AdventDayTwo { int AdventOfCodeDay2(); }
 }
+
+namespace Year2025
+{
+    namespace AdventDayOne { int AdventOfCodeDay1(); }
+    //namespace AdventDayTwo { int AdventOfCodeDay2(); }
+    //namespace AdventDayOne { int AdventOfCodeDay3(); }
+    //namespace AdventDayOne { int AdventOfCodeDay4()); }
+    //namespace AdventDayOne { int AdventOfCodeDay5(); }
+    //namespace AdventDayOne { int AdventOfCodeDay6(); }
+    //namespace AdventDayOne { int AdventOfCodeDay7(); }
+    //namespace AdventDayOne { int AdventOfCodeDay8(); }
+}
